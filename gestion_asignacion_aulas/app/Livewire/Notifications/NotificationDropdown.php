@@ -65,8 +65,8 @@ class NotificationDropdown extends Component
             // Cerrar dropdown
             $this->showDropdown = false;
 
-            // Redirigir a la vista individual de la notificación
-            return $this->redirect(route('notifications.view', ['id' => $notificationId]), navigate: true);
+            // Redirigir al centro de notificaciones con la notificación seleccionada
+            return $this->redirect(route('notifications.index', ['selected' => $notificationId]), navigate: true);
         }
     }
 
