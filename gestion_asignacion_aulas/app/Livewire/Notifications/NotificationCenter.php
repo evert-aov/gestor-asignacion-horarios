@@ -137,6 +137,8 @@ class NotificationCenter extends Component
         if ($notification) {
             $notification->delete();
             session()->flash('success', 'Notificación eliminada exitosamente');
+            $this->closeModal();
+            $this->dispatch('notifications-updated');
         }
     }
 
