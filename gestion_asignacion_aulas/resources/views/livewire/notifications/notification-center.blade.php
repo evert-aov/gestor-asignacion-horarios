@@ -81,14 +81,13 @@
                                 </p>
 
                                 {{-- Acción --}}
-                                <a href="{{ route('notifications.view', ['id' => $notification->id]) }}"
-                                   wire:navigate
+                                <button wire:click="viewNotification({{ $notification->id }})"
                                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium inline-flex items-center">
                                     Ver notificación completa
                                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                     </svg>
-                                </a>
+                                </button>
                             </div>
 
                             {{-- Indicador no leído y acciones --}}
@@ -127,5 +126,96 @@
         </div>
     </div>
 
+    {{-- Modal para ver notificación completa --}}
+    @if($showModal && $selectedNotification)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                {{-- Overlay --}}
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="closeModal"></div>
 
+                {{-- Centrar el modal --}}
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                {{-- Modal panel --}}
+                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
+                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        {{-- Header --}}
+                        <div class="flex items-start justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-start gap-4">
+                                <span class="text-5xl">{{ $selectedNotification->emoji }}</span>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                        {{ $selectedNotification->title }}
+                                    </h3>
+                                    <div class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                                        <span>{{ $selectedNotification->created_at->format('d/m/Y H:i') }}</span>
+                                        <span>·</span>
+                                        <span>{{ $selectedNotification->created_at->diffForHumans() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Badge de prioridad --}}
+                            <div>
+                                @if($selectedNotification->priority === 'urgent')
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                        🔴 Urgente
+                                    </span>
+                                @elseif($selectedNotification->priority === 'important')
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                                        🟡 Importante
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">
+                                        ⚪ Normal
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Mensaje completo --}}
+                        <div class="prose dark:prose-invert max-w-none mb-6">
+                            <div class="text-gray-800 dark:text-gray-200 text-base leading-relaxed whitespace-pre-line">
+                                {{ $selectedNotification->message }}
+                            </div>
+                        </div>
+
+                        {{-- Estado de lectura --}}
+                        <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <span>
+                                        @if($selectedNotification->read_at)
+                                            Leída el {{ $selectedNotification->read_at->format('d/m/Y H:i') }}
+                                        @else
+                                            Sin leer
+                                        @endif
+                                    </span>
+                                </div>
+                                <span class="text-gray-500 dark:text-gray-400">
+                                    ID: #{{ $selectedNotification->id }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Botones de acción --}}
+                    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                        <button type="button" wire:click="closeModal"
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Cerrar
+                        </button>
+                        <button type="button" wire:click="deleteNotification({{ $selectedNotification->id }})"
+                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
