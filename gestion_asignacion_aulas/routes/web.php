@@ -23,26 +23,25 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\AcademicProcesses\TeacherSubjectManager;
 use App\Livewire\Notifications\NotificationCenter;
 use App\Livewire\Notifications\CreateNotification;
-use App\Livewire\Notifications\ViewNotification;
 
 Route::get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
-        
+
         // Si es solo docente, redirigir a su horario
         if ($user->hasRole('Docente') && !$user->hasRole('Administrador')) {
             return redirect()->route('my-schedule.index');
         }
-        
+
         // Si es administrador, redirigir al dashboard
         if ($user->hasRole('Administrador')) {
             return redirect()->route('dashboard');
         }
-        
+
         // Por defecto, ir al dashboard
         return redirect()->route('dashboard');
     }
-    
+
     return redirect()->route('login');
 });
 
@@ -55,14 +54,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Ruta de horario personal - accesible para docentes
     Route::get('/my-schedule', TeacherScheduleView::class)->name('my-schedule.index');
-    
+
     // Rutas compartidas - accesibles para Docentes y Administradores
     Route::get('/academic-logistics/attendance', AttendanceQrManager::class)->name('attendance.index');
     Route::get('/academic-logistics/special-reservations', SpecialReservationManager::class)->name('special-reservations.index');
-    
+
     // Rutas administrativas - solo para Administradores
     Route::middleware(['role:Administrador'])->group(function () {
         Route::get('/user', UserManager::class)->name('user.index');
@@ -77,9 +76,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/academic-process/academic-periods', AcademicPeriodManager::class)->name('academic-periods.index');
         Route::get('/academic-process/group', GroupManager::class)->name('group.index');
-        
+
         Route::get('/academic-management/university-careers', UniversityCareerManager::class)->name('university-careers.index');
-        
+
         Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
         Route::get('/security-access/user-import', [UserImportController::class, 'index'])->name('users.import.index');
         Route::post('/security-access/user-import', [UserImportController::class, 'import'])->name('users.import.process');
@@ -118,7 +117,6 @@ Route::middleware('auth')->group(function () {
     // Notificaciones
     Route::get('/notificaciones', NotificationCenter::class)->name('notifications.index');
     Route::get('/notificaciones/crear', CreateNotification::class)->name('notifications.create');
-    Route::get('/notificaciones/{id}', ViewNotification::class)->name('notifications.view');
 });
 
 // Ruta pública para escanear QR (requiere autenticación pero se maneja en el controlador)
