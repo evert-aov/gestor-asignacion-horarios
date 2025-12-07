@@ -12,6 +12,13 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class ReportController extends Controller
 {
@@ -350,7 +357,7 @@ class ReportController extends Controller
     }
 
     /**
-     * Exportar horarios semanales a Excel (CSV)
+     * Exportar horarios semanales a Excel
      */
     public function exportWeeklySchedules(Request $request)
     {
@@ -383,50 +390,65 @@ class ReportController extends Controller
         $assignments = $query->get();
         $scheduleData = $this->organizeScheduleByDay($assignments);
 
-        $filename = 'Horario_Semanal_' . now()->format('Y-m-d') . '.csv';
+        $filename = 'Horario_Semanal_' . now()->format('Y-m-d') . '.xlsx';
 
-        return response()->streamDownload(function () use ($scheduleData, $academicManagement, $groupId) {
-            $output = fopen('php://output', 'w');
-            
-            // BOM para UTF-8 en Excel
-            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Encabezado del reporte
-            fputcsv($output, ['REPORTE DE HORARIOS SEMANALES']);
-            fputcsv($output, ['Periodo Académico: ' . $academicManagement->name]);
-            if ($groupId) {
-                $group = Group::find($groupId);
-                fputcsv($output, ['Grupo: ' . $group->name]);
+        return Excel::download(new class($scheduleData, $academicManagement, $groupId) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize {
+            private $scheduleData;
+            private $academicManagement;
+            private $groupId;
+
+            public function __construct($scheduleData, $academicManagement, $groupId)
+            {
+                $this->scheduleData = $scheduleData;
+                $this->academicManagement = $academicManagement;
+                $this->groupId = $groupId;
             }
-            fputcsv($output, ['Generado: ' . now()->format('d/m/Y H:i')]);
-            fputcsv($output, []); // Línea vacía
 
-            // Encabezados de columnas
-            fputcsv($output, ['Día', 'Horario Inicio', 'Horario Fin', 'Materia', 'Código', 'Docente', 'Grupo', 'Aula', 'Infraestructura']);
-
-            // Datos
-            foreach ($scheduleData as $day => $assignments) {
-                foreach ($assignments as $assignment) {
-                    fputcsv($output, [
-                        $day, // Ya viene en español desde organizeScheduleByDay
-                        Carbon::parse($assignment->daySchedule->schedule->start)->format('H:i'),
-                        Carbon::parse($assignment->daySchedule->schedule->end)->format('H:i'),
-                        $assignment->userSubject->subject->name,
-                        $assignment->userSubject->subject->code,
-                        $assignment->userSubject->user->name,
-                        $assignment->group->name,
-                        $assignment->classroom->name,
-                        $assignment->classroom->infrastructure->name
-                    ]);
+            public function collection()
+            {
+                $data = collect();
+                
+                foreach ($this->scheduleData as $day => $assignments) {
+                    foreach ($assignments as $assignment) {
+                        $data->push([
+                            $day,
+                            Carbon::parse($assignment->daySchedule->schedule->start)->format('H:i'),
+                            Carbon::parse($assignment->daySchedule->schedule->end)->format('H:i'),
+                            $assignment->userSubject->subject->name,
+                            $assignment->userSubject->subject->code,
+                            $assignment->userSubject->user->name,
+                            $assignment->group->name,
+                            $assignment->classroom->name,
+                            $assignment->classroom->infrastructure->name
+                        ]);
+                    }
                 }
+
+                return $data;
             }
 
-            fclose($output);
-        }, $filename, ['Content-Type' => 'text/csv']);
+            public function headings(): array
+            {
+                return ['Día', 'Horario Inicio', 'Horario Fin', 'Materia', 'Código', 'Docente', 'Grupo', 'Aula', 'Infraestructura'];
+            }
+
+            public function styles(Worksheet $sheet)
+            {
+                return [
+                    1 => [
+                        'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '3B82F6']
+                        ],
+                    ],
+                ];
+            }
+        }, $filename);
     }
 
     /**
-     * Exportar asistencia a Excel (CSV)
+     * Exportar asistencia a Excel
      */
     public function exportAttendance(Request $request)
     {
@@ -457,59 +479,72 @@ class ReportController extends Controller
         $attendanceRecords = $query->orderBy('created_at', 'desc')->get();
         $statistics = $this->calculateAttendanceStatistics($attendanceRecords);
 
-        $filename = 'Reporte_Asistencia_' . now()->format('Y-m-d') . '.csv';
+        $filename = 'Reporte_Asistencia_' . now()->format('Y-m-d') . '.xlsx';
 
-        return response()->streamDownload(function () use ($attendanceRecords, $statistics, $startDate, $endDate) {
-            $output = fopen('php://output', 'w');
-            
-            // BOM para UTF-8 en Excel
-            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Encabezado del reporte
-            fputcsv($output, ['REPORTE DE ASISTENCIA DOCENTE']);
-            fputcsv($output, ['Periodo: ' . Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y')]);
-            fputcsv($output, ['Generado: ' . now()->format('d/m/Y H:i')]);
-            fputcsv($output, []);
+        return Excel::download(new class($attendanceRecords, $statistics, $startDate, $endDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize {
+            private $attendanceRecords;
+            private $statistics;
+            private $startDate;
+            private $endDate;
 
-            // Estadísticas
-            fputcsv($output, ['ESTADÍSTICAS']);
-            fputcsv($output, ['Total de Registros', $statistics['total']]);
-            fputcsv($output, ['Presentes', $statistics['present'], $statistics['present_percentage'] . '%']);
-            fputcsv($output, ['Ausentes', $statistics['absent'], $statistics['absent_percentage'] . '%']);
-            fputcsv($output, ['Tardanzas', $statistics['late'], $statistics['late_percentage'] . '%']);
-            fputcsv($output, []);
-
-            // Encabezados de columnas
-            fputcsv($output, ['Fecha', 'Docente', 'Materia', 'Código', 'Grupo', 'Día', 'Hora Inicio', 'Hora Fin', 'Estado', 'Hora Marcado']);
-
-            // Datos
-            foreach ($attendanceRecords as $record) {
-                $status = match($record->status) {
-                    'present' => 'Presente',
-                    'late' => 'Tardanza',
-                    default => 'Ausente'
-                };
-
-                fputcsv($output, [
-                    Carbon::parse($record->created_at)->format('d/m/Y'),
-                    $record->user->name,
-                    $record->assignment->userSubject->subject->name,
-                    $record->assignment->userSubject->subject->code,
-                    $record->assignment->group->name,
-                    __($record->assignment->daySchedule->day->name),
-                    Carbon::parse($record->assignment->daySchedule->schedule->start)->format('H:i'),
-                    Carbon::parse($record->assignment->daySchedule->schedule->end)->format('H:i'),
-                    $status,
-                    $record->scan_time ? Carbon::parse($record->scan_time)->format('H:i:s') : '-'
-                ]);
+            public function __construct($attendanceRecords, $statistics, $startDate, $endDate)
+            {
+                $this->attendanceRecords = $attendanceRecords;
+                $this->statistics = $statistics;
+                $this->startDate = $startDate;
+                $this->endDate = $endDate;
             }
 
-            fclose($output);
-        }, $filename, ['Content-Type' => 'text/csv']);
+            public function collection()
+            {
+                $data = collect();
+                
+                foreach ($this->attendanceRecords as $record) {
+                    $status = match($record->status) {
+                        'present' => 'Presente',
+                        'late' => 'Tardanza',
+                        default => 'Ausente'
+                    };
+
+                    $data->push([
+                        Carbon::parse($record->created_at)->format('d/m/Y'),
+                        $record->user->name,
+                        $record->assignment->userSubject->subject->name,
+                        $record->assignment->userSubject->subject->code,
+                        $record->assignment->group->name,
+                        __($record->assignment->daySchedule->day->name),
+                        Carbon::parse($record->assignment->daySchedule->schedule->start)->format('H:i'),
+                        Carbon::parse($record->assignment->daySchedule->schedule->end)->format('H:i'),
+                        $status,
+                        $record->scan_time ? Carbon::parse($record->scan_time)->format('H:i:s') : '-'
+                    ]);
+                }
+
+                return $data;
+            }
+
+            public function headings(): array
+            {
+                return ['Fecha', 'Docente', 'Materia', 'Código', 'Grupo', 'Día', 'Hora Inicio', 'Hora Fin', 'Estado', 'Hora Marcado'];
+            }
+
+            public function styles(Worksheet $sheet)
+            {
+                return [
+                    1 => [
+                        'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '3B82F6']
+                        ],
+                    ],
+                ];
+            }
+        }, $filename);
     }
 
     /**
-     * Exportar aulas disponibles a Excel (CSV)
+     * Exportar aulas disponibles a Excel
      */
     public function exportAvailableClassrooms(Request $request)
     {
@@ -578,59 +613,80 @@ class ReportController extends Controller
             $occupiedDetails[$classroom->id] = $assignment->first();
         }
 
-        $filename = 'Aulas_Disponibles_' . $date . '.csv';
+        $filename = 'Aulas_Disponibles_' . $date . '.xlsx';
 
-        return response()->streamDownload(function () use ($availableClassrooms, $occupiedClassroomsData, $occupiedDetails, $date) {
-            $output = fopen('php://output', 'w');
-            
-            // BOM para UTF-8 en Excel
-            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Encabezado del reporte
-            fputcsv($output, ['REPORTE DE DISPONIBILIDAD DE AULAS']);
-            fputcsv($output, ['Fecha: ' . Carbon::parse($date)->format('d/m/Y')]);
-            fputcsv($output, ['Generado: ' . now()->format('d/m/Y H:i')]);
-            fputcsv($output, []);
+        return Excel::download(new class($availableClassrooms, $occupiedClassroomsData, $occupiedDetails, $date) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize {
+            private $availableClassrooms;
+            private $occupiedClassroomsData;
+            private $occupiedDetails;
+            private $date;
 
-            // Resumen
-            fputcsv($output, ['RESUMEN']);
-            fputcsv($output, ['Aulas Disponibles', $availableClassrooms->count()]);
-            fputcsv($output, ['Aulas Ocupadas', $occupiedClassroomsData->count()]);
-            fputcsv($output, []);
-
-            // Aulas Disponibles
-            fputcsv($output, ['AULAS DISPONIBLES']);
-            fputcsv($output, ['Aula', 'Infraestructura', 'Capacidad', 'Tipo']);
-            foreach ($availableClassrooms as $classroom) {
-                fputcsv($output, [
-                    $classroom->name,
-                    $classroom->infrastructure->name,
-                    $classroom->capacity,
-                    ucfirst($classroom->type)
-                ]);
+            public function __construct($availableClassrooms, $occupiedClassroomsData, $occupiedDetails, $date)
+            {
+                $this->availableClassrooms = $availableClassrooms;
+                $this->occupiedClassroomsData = $occupiedClassroomsData;
+                $this->occupiedDetails = $occupiedDetails;
+                $this->date = $date;
             }
-            fputcsv($output, []);
 
-            // Aulas Ocupadas
-            fputcsv($output, ['AULAS OCUPADAS']);
-            fputcsv($output, ['Aula', 'Infraestructura', 'Capacidad', 'Materia', 'Docente', 'Grupo', 'Horario']);
-            foreach ($occupiedClassroomsData as $classroom) {
-                $assignment = $occupiedDetails[$classroom->id] ?? null;
-                if ($assignment) {
-                    fputcsv($output, [
+            public function collection()
+            {
+                $data = collect();
+                
+                // Aulas Disponibles
+                foreach ($this->availableClassrooms as $classroom) {
+                    $data->push([
+                        'DISPONIBLE',
                         $classroom->name,
                         $classroom->infrastructure->name,
                         $classroom->capacity,
-                        $assignment->userSubject->subject->name,
-                        $assignment->userSubject->user->name,
-                        $assignment->group->name,
-                        Carbon::parse($assignment->daySchedule->schedule->start)->format('H:i') . ' - ' . 
-                        Carbon::parse($assignment->daySchedule->schedule->end)->format('H:i')
+                        ucfirst($classroom->type),
+                        '',
+                        '',
+                        '',
+                        ''
                     ]);
                 }
+
+                // Aulas Ocupadas
+                foreach ($this->occupiedClassroomsData as $classroom) {
+                    $assignment = $this->occupiedDetails[$classroom->id] ?? null;
+                    if ($assignment) {
+                        $data->push([
+                            'OCUPADA',
+                            $classroom->name,
+                            $classroom->infrastructure->name,
+                            $classroom->capacity,
+                            ucfirst($classroom->type),
+                            $assignment->userSubject->subject->name,
+                            $assignment->userSubject->user->name,
+                            $assignment->group->name,
+                            Carbon::parse($assignment->daySchedule->schedule->start)->format('H:i') . ' - ' . 
+                            Carbon::parse($assignment->daySchedule->schedule->end)->format('H:i')
+                        ]);
+                    }
+                }
+
+                return $data;
             }
 
-            fclose($output);
-        }, $filename, ['Content-Type' => 'text/csv']);
+            public function headings(): array
+            {
+                return ['Estado', 'Aula', 'Infraestructura', 'Capacidad', 'Tipo', 'Materia', 'Docente', 'Grupo', 'Horario'];
+            }
+
+            public function styles(Worksheet $sheet)
+            {
+                return [
+                    1 => [
+                        'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '3B82F6']
+                        ],
+                    ],
+                ];
+            }
+        }, $filename);
     }
 }

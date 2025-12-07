@@ -93,7 +93,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('user-import.index') }}"
+                            <a href="{{ route('users.import.index') }}"
                                 class="flex items-center p-2 text-sm text-gray-600 rounded-lg dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
                                 <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path
@@ -373,6 +373,19 @@
                                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                                 </svg>
                                 Notificaciones
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('reports.dynamic.index') }}"
+                                class="flex items-center p-2 text-sm text-gray-600 rounded-lg dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                                    <path fill-rule="evenodd"
+                                        d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9 4a1 1 0 10-2 0v1a1 1 0 10-2 0v-1a1 1 0 10-2 0v1a1 1 0 10-2 0v-1a1 1 0 10-2 0v6a1 1 0 102 0v-2a1 1 0 112 0v2a1 1 0 102 0v-2a1 1 0 112 0v2a1 1 0 102 0V9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Reportes Dinámicos
                             </a>
                         </li>
 

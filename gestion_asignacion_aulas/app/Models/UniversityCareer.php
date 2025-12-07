@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UniversityCareer extends Model
 {
