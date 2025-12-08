@@ -107,18 +107,6 @@ class NotificationCenter extends Component
         $this->selectedNotificationId = null;
     }
 
-    public function markAsRead($notificationId)
-    {
-        $notification = Notification::where('id', $notificationId)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        if ($notification) {
-            $notification->markAsRead();
-            $this->dispatch('notification-read');
-        }
-    }
-
     public function markAllAsRead()
     {
         $service = new NotificationService();
@@ -146,10 +134,5 @@ class NotificationCenter extends Component
     {
         $this->filter = $filter;
         $this->resetPage();
-    }
-
-    public function getUnreadCountProperty()
-    {
-        return Notification::where('user_id', auth()->id())->unread()->count();
     }
 }

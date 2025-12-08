@@ -11,51 +11,11 @@ class NotificationDropdown extends Component
     public $notifications = [];
     public $unreadCount = 0;
 
-    public function mount()
-    {
-        $this->loadNotifications();
-    }
-
-    public function loadNotifications()
-    {
-        $this->notifications = Notification::where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-        $this->unreadCount = Notification::where('user_id', auth()->id())
-            ->whereNull('read_at')
-            ->count();
-    }
-
-    public function toggleDropdown()
-    {
-        $this->showDropdown = !$this->showDropdown;
-        if ($this->showDropdown) {
-            $this->loadNotifications();
-        }
-    }
-
-    public function markAsRead($notificationId)
-    {
-        $notification = Notification::find($notificationId);
-        if ($notification && $notification->user_id === auth()->id()) {
-            $notification->markAsRead();
-            $this->loadNotifications();
-        }
-    }
-
     public function markAllAsRead()
     {
-        $notifications = Notification::where('user_id', auth()->id())
+        Notification::where('user_id', auth()->id())
             ->whereNull('read_at')
-            ->get();
-
-        foreach ($notifications as $notification) {
-            $notification->markAsRead();
-        }
-
-        $this->loadNotifications();
+            ->update(['read_at' => now()]);
     }
 
     public function goToNotification($notificationId)
@@ -72,6 +32,15 @@ class NotificationDropdown extends Component
 
     public function render()
     {
+        $this->notifications = Notification::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        $this->unreadCount = Notification::where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
+
         return view('livewire.notifications.notification-dropdown');
     }
 }
