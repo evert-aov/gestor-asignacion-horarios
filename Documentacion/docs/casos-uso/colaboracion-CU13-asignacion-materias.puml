@@ -1,0 +1,60 @@
+@startuml colaboracion-CU13-asignacion-materias
+left to right direction
+
+' Configuración
+skinparam backgroundColor white
+skinparam shadowing false
+
+' Actores y Objetos
+object Admin
+object ":UI\nTeacherSubject\nManager" as UI
+object ":Controller\nTeacherSubject\nManager" as Controller  
+object ":UserSubject" as UserSubject
+object ":User" as User
+object ":Subject" as Subject
+object ":UniversityCareer" as Career
+
+' Mensajes numerados - LISTAR DOCENTES
+Admin --> UI : **1.** Acceder al módulo
+UI --> Controller : **1.1.** render()
+Controller --> User : **1.1.1.** where(role='Docente')
+Controller --> Subject : **1.1.2.** all()
+Controller --> Career : **1.1.3.** all()
+
+' Mensajes numerados - BUSCAR
+Admin --> UI : **2.** Buscar docente
+UI --> Controller : **2.1.** updatingSearch()
+Controller --> User : **2.1.1.** where(name LIKE...)
+
+' Mensajes numerados - EDITAR
+Admin --> UI : **3.** Seleccionar\ndocente
+UI --> Controller : **3.1.** edit(id)
+Controller --> User : **3.1.1.** find(id)
+Controller --> UserSubject : **3.1.2.** where(user_id)
+
+Admin --> UI : **3.2.** Modificar\nmaterias
+Admin --> UI : **3.3.** Guardar
+
+UI --> Controller : **3.3.1.** save()
+Controller --> Controller : **3.3.2.**\nvalidate()
+Controller --> Controller : **3.3.3.**\nbeginTransaction()
+
+Controller --> UserSubject : **3.3.4.** where(user_id)
+Controller --> UserSubject : **3.3.5.** delete()\n[obsoletas]
+Controller --> UserSubject : **3.3.6.** create()\n[nuevas]
+
+Controller --> Controller : **3.3.7.**\ncommit()
+
+' Mensajes numerados - LIMPIAR
+Admin --> UI : **4.** Limpiar búsqueda
+UI --> Controller : **4.1.** clearSearch()
+
+note right of Controller
+  Transacción:
+  - Obtener asignaciones actuales
+  - Eliminar las que ya no están
+  - Crear las nuevas
+  - Commit o Rollback
+end note
+
+@enduml

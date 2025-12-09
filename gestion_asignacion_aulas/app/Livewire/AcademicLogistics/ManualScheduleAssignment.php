@@ -51,11 +51,13 @@ class ManualScheduleAssignment extends Component
     {
         $assignments = $this->getGroupedAssignments();
 
-        return view('livewire.academic-logistics.manual-schedule-assigment.manual-schedule-assignment',
+        return view(
+            'livewire.academic-logistics.manual-schedule-assigment.manual-schedule-assignment',
             compact(
                 'assignments',
                 'this'
-            ));
+            )
+        );
     }
 
     private function getGroupedAssignments(): Collection
@@ -97,7 +99,7 @@ class ManualScheduleAssignment extends Component
             $first = $group->first();
             $userSubject = $first->userSubject;
 
-            // --- INICIO DE LA CORRECCIÓN ---
+
             // Ordenar por día de la semana (usando nombres en inglés)
             $schedules = $group->sortBy(function ($assignment) {
                 // Asegúrate de que la relación existe antes de acceder a ella
@@ -134,8 +136,8 @@ class ManualScheduleAssignment extends Component
                 'subject_group' => $first->group->name,
                 'subject_name' => $userSubject->subject->name,
                 'teacher_name' => $userSubject->user->name . ' ' . $userSubject->user->last_name,
-                'schedules' => $schedules, // colección ordenada (compatibilidad)
-                'schedules_by_day' => $schedulesByDay, // arreglo 0..5 con Assignment|null
+                'schedules' => $schedules,
+                'schedules_by_day' => $schedulesByDay, 
                 'ids' => $group->pluck('id')->toArray()
             ];
         })->values();
@@ -166,7 +168,7 @@ class ManualScheduleAssignment extends Component
 
     public function openCreateModal(): void
     {
-        // Asegurar que las relaciones están cargadas para los selects
+       
         $this->getRelations();
 
         $this->editing = null;
@@ -177,7 +179,7 @@ class ManualScheduleAssignment extends Component
 
     public function edit($id): void
     {
-        // Asegurar que las relaciones están cargadas para los selects
+        
         $this->getRelations();
 
         //Obtener la asignación base
@@ -248,7 +250,7 @@ class ManualScheduleAssignment extends Component
 
         try {
             // Validar que al menos un horario esté seleccionado
-            $selectedSchedules = array_filter($this->schedules, function($schedule) {
+            $selectedSchedules = array_filter($this->schedules, function ($schedule) {
                 return !empty($schedule['day_schedule_id']) && !empty($schedule['classroom_id']);
             });
 
@@ -269,13 +271,13 @@ class ManualScheduleAssignment extends Component
                 $this->createNewAssignments($selectedSchedules, $userSubject);
             }
 
-            session()->flash('assignment_message',
+            session()->flash(
+                'assignment_message',
                 $this->editing ? 'Asignación actualizada correctamente.' : 'Asignación creada correctamente.'
             );
 
             $this->closeModal();
             $this->getRelations();
-
         } catch (\Exception $e) {
             session()->flash('error', $e->getMessage());
         }
@@ -290,7 +292,7 @@ class ManualScheduleAssignment extends Component
             ->get();
 
         $existingScheduleIds = [];
-//        $processedSchedules = [];
+        //        $processedSchedules = [];
 
         // Actualizar o crear asignaciones
         foreach ($selectedSchedules as $schedule) {
@@ -306,7 +308,7 @@ class ManualScheduleAssignment extends Component
                 if ($existingAssignment) {
                     // Ya existe, mantenerla
                     $existingScheduleIds[] = $existingAssignment->id;
-                  //  $processedSchedules[] = $existingAssignment;
+                    //  $processedSchedules[] = $existingAssignment;
                 } else {
                     // Crear nueva asignación
                     $newAssignment = Assignment::create([
@@ -318,7 +320,7 @@ class ManualScheduleAssignment extends Component
                         'academic_management_id' => $this->form->academic_id,
                     ]);
                     $existingScheduleIds[] = $newAssignment->id;
-                   // $processedSchedules[] = $newAssignment;
+                    // $processedSchedules[] = $newAssignment;
                 }
             }
         }
@@ -381,12 +383,42 @@ class ManualScheduleAssignment extends Component
                 $classroom = Classroom::find($schedule['classroom_id']);
                 throw new \Exception(
                     "El aula {$classroom->number} ya está ocupada el {$daySchedule->day->name} de " .
-                    date('H:i', strtotime($daySchedule->schedule->start)) . " a " .
-                    date('H:i', strtotime($daySchedule->schedule->end)) .
-                    " para el periodo académico seleccionado."
+                        date('H:i', strtotime($daySchedule->schedule->start)) . " a " .
+                        date('H:i', strtotime($daySchedule->schedule->end)) .
+                        " para el periodo académico seleccionado."
                 );
             }
         }
+
+        // Validar conflicto de horario del docente
+        $userSubject = UserSubject::find($this->form->user_subject_id);
+        if ($userSubject) {
+            foreach ($selectedSchedules as $dayName => $schedule) {
+                $teacherConflictQuery = Assignment::whereHas('userSubject', function ($q) use ($userSubject) {
+                    $q->where('user_id', $userSubject->user_id);
+                })
+                    ->where('day_schedule_id', $schedule['day_schedule_id'])
+                    ->where('academic_management_id', $this->form->academic_id);
+
+                if ($this->editing && !empty($existingAssignmentIds)) {
+                    $teacherConflictQuery->whereNotIn('id', $existingAssignmentIds);
+                }
+
+                if ($teacherConflictQuery->exists()) {
+                    $conflictingAssignment = $teacherConflictQuery->with(['userSubject.subject', 'daySchedule.day', 'daySchedule.schedule'])->first();
+                    $daySchedule = DaySchedule::with(['day', 'schedule'])->find($schedule['day_schedule_id']);
+
+                    throw new \Exception(
+                        "El docente {$userSubject->user->name} {$userSubject->user->last_name} ya tiene asignada la materia " .
+                            "{$conflictingAssignment->userSubject->subject->name} el {$daySchedule->day->name} de " .
+                            date('H:i', strtotime($daySchedule->schedule->start)) . " a " .
+                            date('H:i', strtotime($daySchedule->schedule->end)) .
+                            " para el periodo académico seleccionado."
+                    );
+                }
+            }
+        }
+
 
         // Validar conflicto de materia-grupo
         $userSubject = UserSubject::find($this->form->user_subject_id);
@@ -445,4 +477,3 @@ class ManualScheduleAssignment extends Component
         $this->resetPage();
     }
 }
-

@@ -1,0 +1,21 @@
+@startuml P3-subsistema-logistica-academica
+
+' Diagrama de paquete del subsistema
+package "P3. Gestión de Logística Académica" {
+    
+    rectangle "Gestión de\nLogística\nAcadémica" as Subsistema
+    
+    usecase "CU07 - Gestionar Infraestructura" as CU07
+    usecase "CU08 - Gestionar Aulas y\nAsignar a Infraestructura" as CU08
+    usecase "CU09 - Gestionar Bloques de Horarios" as CU09
+    usecase "CU10 - Gestión de Planificación y\nAsignación Académica" as CU10
+    usecase "CU15 - Gestionar Reservas de Aulas" as CU15
+    
+    Subsistema ..> CU07
+    Subsistema ..> CU08
+    Subsistema ..> CU09
+    Subsistema ..> CU10
+    Subsistema ..> CU15
+}
+
+@enduml

@@ -1,0 +1,87 @@
+@startuml secuencia-gestion-carga-horaria
+autonumber
+
+actor "Administrador" as Admin
+participant "UI: Manual\nSchedule\nAssignment" as UI
+participant "ManualSchedule\nAssignment\n(Livewire)" as Controller
+database "DB: Assignments,\nUserSubjects,\nDaySchedules,\nClassrooms" as DB
+
+== Listar Asignaciones ==
+
+Admin -> UI: 1. Acceder al módulo
+UI -> Controller: 2. render()
+Controller -> DB: 2.1. getGroupedAssignments()
+DB --> Controller: 2.2. Asignaciones agrupadas
+Controller --> UI: 2.3. Vista con asignaciones
+UI --> Admin: 2.4. Mostrar lista de asignaciones
+
+== Crear Nueva Asignación ==
+
+Admin -> UI: 3. Clic en "CREATE ASSIGNMENT"
+UI -> Controller: 3.1. openCreateModal()
+Controller -> DB: 3.1.1. getRelations()
+DB --> Controller: 3.1.2. Datos de relaciones\n(docentes, materias, grupos,\nhorarios, aulas)
+Controller --> UI: 3.1.3. Mostrar modal vacío
+UI --> Admin: 3.1.4. Formulario de creación
+
+Admin -> UI: 4. Completar formulario\n(docente-materia, grupo,\nhorarios, aulas)
+Admin -> UI: 5. Clic en "Guardar"
+
+UI -> Controller: 5.1. save()
+
+alt Validación exitosa
+    Controller -> Controller: 5.1.1. validateConflicts()
+    
+    note right of Controller
+        Validaciones:
+        - Conflicto de aula
+        - Conflicto de horario del docente
+        - Conflicto de materia-grupo
+    end note
+    
+    Controller -> DB: 5.1.2. createNewAssignments()
+    DB --> Controller: 5.1.3. Confirmación
+    Controller --> UI: 5.1.4. Mensaje de éxito
+    UI --> Admin: 5.1.5. "Asignación creada correctamente"
+    
+else Error de validación
+    Controller --> UI: 5.2. Mensaje de error
+    UI --> Admin: 5.3. Mostrar error específico\n(ej: "El docente ya tiene\nuna clase a esa hora")
+end
+
+== Editar Asignación ==
+
+Admin -> UI: 6. Seleccionar asignación\npara editar
+UI -> Controller: 6.1. edit(id)
+Controller -> DB: 6.1.1. Buscar asignación\ny relacionadas
+DB --> Controller: 6.1.2. Datos de asignación
+Controller --> UI: 6.1.3. Modal con datos
+UI --> Admin: 6.1.4. Formulario pre-llenado
+
+Admin -> UI: 7. Modificar datos
+Admin -> UI: 8. Clic en "Guardar"
+
+UI -> Controller: 8.1. save()
+
+alt Validación exitosa
+    Controller -> Controller: 8.1.1. validateConflicts()
+    Controller -> DB: 8.1.2. updateExistingAssignments()
+    DB --> Controller: 8.1.3. Confirmación
+    Controller --> UI: 8.1.4. Mensaje de éxito
+    UI --> Admin: 8.1.5. "Asignación actualizada\ncorrectamente"
+    
+else Error de validación
+    Controller --> UI: 8.2. Mensaje de error
+    UI --> Admin: 8.3. Mostrar error específico
+end
+
+== Eliminar Asignación ==
+
+Admin -> UI: 9. Seleccionar asignación\npara eliminar
+UI -> Controller: 9.1. delete(id)
+Controller -> DB: 9.1.1. Eliminar asignaciones\nrelacionadas
+DB --> Controller: 9.1.2. Confirmación
+Controller --> UI: 9.1.3. Mensaje de éxito
+UI --> Admin: 9.1.4. "Asignación eliminada\ncorrectamente"
+
+@enduml

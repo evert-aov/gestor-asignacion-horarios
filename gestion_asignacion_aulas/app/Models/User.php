@@ -109,7 +109,7 @@ class User extends Authenticatable
         static::creating(function ($model) {
             if (empty($model->code) || $model->code == 0) {
                 do {
-                    $code = rand(100000, 999999);
+                    $code = rand(1000, 9999);
                 } while (self::where('code', $code)->exists());
                 $model->code = $code;
             }

@@ -1,7 +1,7 @@
 <div>
     <x-table-header>
         <div class="flex items-center space-x-2">
-            <x-icons.key class="w-4 h-4" /> <span>{{ __('SIGLA') }}</span>
+            <x-icons.key class="w-4 h-4" /> <span>{{ __('Sigla') }}</span>
         </div>
     </x-table-header>
 
@@ -13,18 +13,18 @@
 
     <x-table-header>
         <div class="flex items-center space-x-2">
-            <x-icons.classroom class="w-4 h-4" /> <span>{{ __('MATERIA') }}</span>
+            <x-icons.classroom class="w-4 h-4" /> <span>{{ __('Subject') }}</span>
         </div>
     </x-table-header>
 
     <x-table-header>
         <div class="flex items-center space-x-2">
-            <x-icons.users class="w-4 h-4" /> <span>{{ __('DOCENTE') }}</span>
+            <x-icons.users class="w-4 h-4" /> <span>{{ __('Teacher') }}</span>
         </div>
     </x-table-header>
 
     @php
-        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        $days = [__('Monday'), __('Tuesday'), __('Wednesday'), __('Thursday'), __('Friday'), __('Saturday')];
     @endphp
     {{-- 3 columnas para horarios con aulas --}}
     @for($i = 0; $i < 6; $i++)
@@ -36,7 +36,7 @@
 
         <x-table-header>
             <div class="flex items-center space-x-2">
-                <x-icons.time class="w-4 h-4" /> <span>{{ __('HORA/AULA') }} {{ $i }}</span>
+                <x-icons.time class="w-4 h-4" /> <span>{{ __('Hour/Room') }}</span>
             </div>
         </x-table-header>
     @endfor

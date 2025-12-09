@@ -98,5 +98,15 @@
     "Code": "Numero",
     "Last Name": "Apellido",
     "Phone": "Telefono",
-    "Full Name": "Nombre completo"
+    "Full Name": "Nombre completo",
+    "Hour/Room": "Hora/Aula",
+    "Subject": "Materia",
+    "Teacher": "Docente",
+    "Monday": "Lunes",
+    "Tuesday": "Martes",
+    "Wednesday": "Miercoles",
+    "Thursday": "Jueves",
+    "Friday": "Viernes",
+    "Saturday": "Sabado",
+    "Create Assignment": "Crear Asignación"
  }
