@@ -11,24 +11,7 @@ class NotificationDropdown extends Component
     public $notifications = [];
     public $unreadCount = 0;
 
-    public function markAllAsRead()
-    {
-        Notification::where('user_id', auth()->id())
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
-    }
-
-    public function goToNotification($notificationId)
-    {
-        $notification = Notification::find($notificationId);
-        if ($notification && $notification->user_id === auth()->id()) {
-            // Cerrar dropdown
-            $this->showDropdown = false;
-
-            // Redirigir al centro de notificaciones con la notificación seleccionada
-            return $this->redirect(route('notifications.index', ['selected' => $notificationId]), navigate: true);
-        }
-    }
+    protected $listeners = ['notifications-updated' => '$refresh'];
 
     public function render()
     {
