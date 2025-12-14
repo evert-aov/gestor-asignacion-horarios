@@ -22,7 +22,6 @@ use App\Livewire\SecurityAccess\UserManager;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\AcademicProcesses\TeacherSubjectManager;
 use App\Livewire\Notifications\NotificationCenter;
-use App\Livewire\Notifications\CreateNotification;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -116,7 +115,6 @@ Route::middleware('auth')->group(function () {
 
     // Notificaciones
     Route::get('/notificaciones', NotificationCenter::class)->name('notifications.index');
-    Route::get('/notificaciones/crear', CreateNotification::class)->name('notifications.create');
 });
 
 // Ruta pública para escanear QR (requiere autenticación pero se maneja en el controlador)
