@@ -76,61 +76,6 @@ class Notification extends Model
     }
 
     /**
-     * Verificar si está leída
-     */
-    public function isRead(): bool
-    {
-        return !is_null($this->read_at);
-    }
-
-    /**
-     * Obtener el ícono según el tipo
-     */
-    public function getIconAttribute(): string
-    {
-        return match($this->notification_type) {
-            'attendance_pending' => 'clipboard',
-            'new_subject' => 'book',
-            'schedule_change' => 'refresh',
-            'direct_message' => 'mail',
-            'reservation_approved' => 'check',
-            'reservation_rejected' => 'x',
-            'reservation_permission' => 'bell',
-            default => 'pencil'
-        };
-    }
-
-    /**
-     * Obtener el emoji según el tipo
-     */
-    public function getEmojiAttribute(): string
-    {
-        return match($this->notification_type) {
-            'attendance_pending' => '📋',
-            'new_subject' => '📚',
-            'schedule_change' => '🔄',
-            'direct_message' => '✉️',
-            'reservation_approved' => '✅',
-            'reservation_rejected' => '❌',
-            'reservation_permission' => '🔔',
-            default => '✏️'
-        };
-    }
-
-    /**
-     * Obtener el color según la prioridad
-     */
-    public function getPriorityColorAttribute(): string
-    {
-        return match($this->priority) {
-            'urgent' => 'red',
-            'important' => 'yellow',
-            'info' => 'blue',
-            default => 'gray'
-        };
-    }
-
-    /**
      * Obtener el color del borde según si está leída
      */
     public function getBorderColorAttribute(): string
