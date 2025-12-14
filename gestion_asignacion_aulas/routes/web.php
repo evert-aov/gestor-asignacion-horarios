@@ -117,7 +117,6 @@ Route::middleware('auth')->group(function () {
 
     // Notificaciones
     Route::get('/notificaciones', NotificationCenter::class)->name('notifications.index');
-    Route::get('/notificaciones/crear', CreateNotification::class)->name('notifications.create');
 });
 
 // Ruta pública para escanear QR (requiere autenticación pero se maneja en el controlador)
