@@ -1,0 +1,23 @@
+@startuml P4-subsistema-informacion-reportes
+
+' Diagrama de paquete del subsistema
+package "P4. Gestión de Información y Reportes" {
+    
+    rectangle "Gestión de\nInformación y\nReportes" as Subsistema
+    
+    usecase "CU13 - Generar Reportes" as CU13
+    usecase "CU14 - Exportar Reportes" as CU14
+    usecase "CU15 - Programar Reportes\nAutomáticos" as CU15
+    usecase "CU16 - Configurar Plantillas de\nReportes" as CU16
+    usecase "CU17 - Dashboard Administrativo" as CU17
+    usecase "CU18 - Gestionar Notificaciones\ndel Sistema" as CU18
+    
+    Subsistema ..> CU13
+    Subsistema ..> CU14
+    Subsistema ..> CU15
+    Subsistema ..> CU16
+    Subsistema ..> CU17
+    Subsistema ..> CU18
+}
+
+@enduml

@@ -1,0 +1,105 @@
+@startuml secuencia-CU15-gestionar-reservas
+autonumber
+
+actor "Coordinador/\nDocente" as User
+actor "Administrador" as Admin
+participant "UI: Special\nReservation\nManager" as UI
+participant "SpecialReservation\nManager\n(Livewire)" as Controller
+database "DB: SpecialReservations,\nClassrooms,\nUsers" as DB
+
+== Listar Reservas ==
+
+User -> UI: 1. Acceder al módulo
+UI -> Controller: 2. render()
+Controller -> DB: 2.1. Buscar reservas\ncon relaciones
+DB --> Controller: 2.2. Reservas con\naula, usuario, aprobador
+Controller -> DB: 2.3. Obtener aulas
+DB --> Controller: 2.4. Lista de aulas
+Controller --> UI: 2.5. Vista con reservas
+UI --> User: 2.6. Mostrar lista
+
+== Buscar y Filtrar ==
+
+User -> UI: 3. Buscar por título\no filtrar por estado
+UI -> Controller: 3.1. updatingSearch()
+Controller -> DB: 3.1.1. Filtrar reservas
+DB --> Controller: 3.1.2. Reservas filtradas
+Controller --> UI: 3.1.3. Actualizar lista
+UI --> User: 3.1.4. Mostrar resultados
+
+== Crear Reserva ==
+
+User -> UI: 4. Clic en "Crear Reserva"
+UI -> Controller: 4.1. openModal()
+Controller --> UI: 4.1.1. Mostrar modal vacío
+UI --> User: 4.1.2. Formulario de reserva
+
+User -> UI: 5. Completar formulario\n(aula, evento, fecha, horario)
+User -> UI: 6. Guardar
+
+UI -> Controller: 6.1. store()
+
+alt Validación exitosa
+    Controller -> Controller: 6.1.1. validate()
+    
+    note right of Controller
+        Validaciones:
+        - Fecha >= hoy
+        - Hora fin > hora inicio
+        - Aula existe
+        - Campos obligatorios
+    end note
+    
+    Controller -> DB: 6.1.2. create()\n[status='pendiente',\nuser_id=Auth::id()]
+    DB --> Controller: 6.1.3. Confirmación
+    
+    Controller --> UI: 6.1.4. Mensaje de éxito
+    UI --> User: 6.1.5. "Reserva creada.\nPendiente de aprobación"
+    
+else Error de validación
+    Controller --> UI: 6.2. Mensaje de error
+    UI --> User: 6.3. Mostrar error específico
+end
+
+== Aprobar Reserva (Solo Administrador) ==
+
+Admin -> UI: 7. Ver reservas pendientes
+Admin -> UI: 8. Seleccionar reserva
+Admin -> UI: 9. Clic en "Aprobar"
+
+UI -> Controller: 9.1. approve(id)
+Controller -> DB: 9.1.1. findOrFail(id)
+DB --> Controller: 9.1.2. Reserva encontrada
+Controller -> DB: 9.1.3. update()\n[status='aprobada',\napproved_by=Auth::id()]
+DB --> Controller: 9.1.4. Confirmación
+
+Controller --> UI: 9.1.5. Mensaje de éxito
+UI --> Admin: 9.1.6. "Reserva aprobada"
+
+== Rechazar Reserva (Solo Administrador) ==
+
+Admin -> UI: 10. Seleccionar reserva
+Admin -> UI: 11. Clic en "Rechazar"
+
+UI -> Controller: 11.1. reject(id)
+Controller -> DB: 11.1.1. findOrFail(id)
+DB --> Controller: 11.1.2. Reserva encontrada
+Controller -> DB: 11.1.3. update()\n[status='rechazada',\napproved_by=Auth::id()]
+DB --> Controller: 11.1.4. Confirmación
+
+Controller --> UI: 11.1.5. Mensaje de éxito
+UI --> Admin: 11.1.6. "Reserva rechazada"
+
+== Eliminar Reserva ==
+
+User -> UI: 12. Seleccionar reserva
+User -> UI: 13. Clic en "Eliminar"
+
+UI -> Controller: 13.1. delete(id)
+Controller -> DB: 13.1.1. findOrFail(id)\ny delete()
+DB --> Controller: 13.1.2. Confirmación
+
+Controller --> UI: 13.1.3. Mensaje de éxito
+UI --> User: 13.1.4. "Reserva eliminada"
+
+@enduml

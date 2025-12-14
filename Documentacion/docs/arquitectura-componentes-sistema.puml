@@ -1,0 +1,94 @@
+@startuml arquitectura-componentes-sistema
+title 5.2. Implementación de la Arquitectura del Sistema - Gestión de Horarios Académicos
+
+' Capa de Componentes de Negocio (Superior)
+package "Componentes de Negocio" <<Rectangle>> #LightGreen {
+    component "Gestión de\nSeguridad y\nAccesos" as Seguridad
+    component "Gestión de\nProcesos\nAcadémicos" as Procesos
+    component "Gestión de\nLogística\nAcadémica" as Logistica
+    component "Gestión de\nInformación y\nReportes" as Reportes
+    component "Gestión de\nNotificaciones" as Notificaciones
+    component "Dashboard\nAdministrativo" as Dashboard
+    
+    component "<<library>>\nlivewire/livewire" as Livewire
+    component "<<library>>\nbarryvdh/laravel-\ndompdf" as DomPDF
+    component "<<library>>\nmaatwebsite/excel" as Excel
+    component "<<library>>\nsimpleSoftwareIO/\nsimple-qrcode" as QRCode
+    component "<<library>>\nlaravel/breeze" as Breeze
+    component "<<library>>\nlaravel/framework" as Framework
+    component "<<library>>\nlaravel/tinker" as Tinker
+}
+
+' Capa MVC
+package "Capa MVC" <<Rectangle>> {
+    component "composer.json" as Composer
+    component "view" as View
+    component "controller" as Controller
+    component "routes" as Routes
+}
+
+' Capa de Datos
+package "Data" <<Rectangle>> #LightGreen {
+    component "<<table>>\nusers" as Users
+    component "<<table>>\nroles" as Roles
+    component "<<table>>\npermissions" as Permissions
+    component "<<table>>\nsubjects" as Subjects
+    component "<<table>>\ngroups" as Groups
+    component "<<table>>\nclassrooms" as Classrooms
+    component "<<table>>\nschedules" as Schedules
+    component "<<table>>\nday_schedules" as DaySchedules
+    component "<<table>>\nassignments" as Assignments
+    component "<<table>>\nuser_subjects" as UserSubjects
+    component "<<table>>\nuniversity_careers" as Careers
+    component "<<table>>\nspecial_reservations" as Reservations
+    component "<<table>>\nattendance_records" as Attendance
+    component "<<table>>\nqr_tokens" as QRTokens
+    component "<<table>>\naudit_logs" as AuditLogs
+    component "<<table>>\nreport_templates" as ReportTemplates
+    component "<<table>>\nnotifications" as NotificationsTable
+    component "<<table>>\nacademic_management" as AcademicMgmt
+    
+    component "<<table>>\ngestorHorariosDB.sql" as DB
+}
+
+' Relaciones de Componentes a Composer
+Seguridad ..> Composer
+Procesos ..> Composer
+Logistica ..> Composer
+Reportes ..> Composer
+Notificaciones ..> Composer
+Dashboard ..> Composer
+Livewire ..> Composer
+DomPDF ..> Composer
+Excel ..> Composer
+QRCode ..> Composer
+Breeze ..> Composer
+Framework ..> Composer
+Tinker ..> Composer
+
+' Relaciones MVC
+Composer ..> View
+Composer ..> Controller
+Composer ..> Routes
+
+' Relaciones de DB a Tablas
+DB ..> Users
+DB ..> Roles
+DB ..> Permissions
+DB ..> Subjects
+DB ..> Groups
+DB ..> Classrooms
+DB ..> Schedules
+DB ..> DaySchedules
+DB ..> Assignments
+DB ..> UserSubjects
+DB ..> Careers
+DB ..> Reservations
+DB ..> Attendance
+DB ..> QRTokens
+DB ..> AuditLogs
+DB ..> ReportTemplates
+DB ..> NotificationsTable
+DB ..> AcademicMgmt
+
+@enduml

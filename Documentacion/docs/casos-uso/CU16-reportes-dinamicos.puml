@@ -1,0 +1,38 @@
+@startuml CU16-reportes-dinamicos
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Administrador" as Admin
+actor "Coordinador" as Coord
+
+rectangle "Sistema de Gestión Académica" {
+    usecase "Generar Reportes\nDinámicos" as CU16
+    usecase "Seleccionar Tabla\ny Campos" as CU16_1
+    usecase "Aplicar Filtros" as CU16_2
+    usecase "Exportar Reporte" as CU16_3
+    usecase "Gestionar Plantillas" as CU16_4
+    usecase "Iniciar Sesión" as CU01
+}
+
+Admin -- CU16
+Coord -- CU16
+
+CU16 ..> CU01 : <<include>>
+CU16 ..> CU16_1 : <<extend>>
+CU16 ..> CU16_2 : <<extend>>
+CU16 ..> CU16_3 : <<extend>>
+CU16 ..> CU16_4 : <<extend>>
+
+note right of CU16
+  Permite generar reportes
+  personalizados seleccionando
+  tablas, campos y filtros
+end note
+
+note right of CU16_4
+  Guardar configuraciones
+  de reportes como plantillas
+  reutilizables
+end note
+
+@enduml

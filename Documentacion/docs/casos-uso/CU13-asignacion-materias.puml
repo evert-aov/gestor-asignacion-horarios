@@ -1,0 +1,22 @@
+@startuml CU13-asignacion-materias
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Administrador" as Admin
+
+rectangle "Sistema de Gestión Académica" {
+    usecase "Asignar Materias\na Docentes" as CU13
+    usecase "Iniciar Sesión" as CU01
+}
+
+Admin -- CU13
+
+CU13 ..> CU01 : <<include>>
+
+note right of CU13
+  Permite asignar y gestionar
+  las materias que imparte
+  cada docente
+end note
+
+@enduml

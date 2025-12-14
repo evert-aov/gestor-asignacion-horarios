@@ -1,0 +1,29 @@
+@startuml CU14-gestionar-carreras
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Administrador" as Admin
+
+rectangle "Sistema de Gestión Académica" {
+    usecase "Gestionar Carreras\nUniversitarias" as CU14
+    usecase "Asignar Materias\na Carrera" as CU14_1
+    usecase "Iniciar Sesión" as CU01
+}
+
+Admin -- CU14
+
+CU14 ..> CU01 : <<include>>
+CU14 ..> CU14_1 : <<extend>>
+
+note right of CU14
+  Permite crear, editar, eliminar
+  y consultar carreras universitarias
+end note
+
+note right of CU14_1
+  Permite asignar materias
+  a una carrera con semestre
+  y tipo (obligatoria/electiva)
+end note
+
+@enduml

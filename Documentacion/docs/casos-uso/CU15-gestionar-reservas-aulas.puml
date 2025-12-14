@@ -1,0 +1,38 @@
+@startuml CU15-gestionar-reservas-aulas
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Coordinador" as Coord
+actor "Docente" as Teacher
+actor "Administrador" as Admin
+
+rectangle "Sistema de Gestión Académica" {
+    usecase "Gestionar Reservas\nde Aulas" as CU15
+    usecase "Crear Reserva" as CU15_1
+    usecase "Aprobar/Rechazar\nReserva" as CU15_2
+    usecase "Consultar Reservas" as CU15_3
+    usecase "Iniciar Sesión" as CU01
+}
+
+Coord -- CU15
+Teacher -- CU15
+Admin -- CU15_2
+
+CU15 ..> CU01 : <<include>>
+CU15 ..> CU15_1 : <<extend>>
+CU15 ..> CU15_3 : <<extend>>
+CU15_2 ..> CU01 : <<include>>
+
+note right of CU15
+  Permite gestionar reservas
+  especiales de aulas para
+  eventos y actividades
+end note
+
+note right of CU15_2
+  Solo el Administrador
+  puede aprobar o rechazar
+  las reservas
+end note
+
+@enduml

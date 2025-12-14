@@ -4,6 +4,6 @@
         mode-live="search"
         click-clear-search="clearSearch"
         click-open-create-modal="openCreateModal"
-        btn-name="Create Assignment"
+        btn-name="{{__('Create Assignment')}}"
     />
 </div>

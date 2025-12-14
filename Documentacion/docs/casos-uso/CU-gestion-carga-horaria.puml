@@ -1,0 +1,21 @@
+@startuml CU-gestion-carga-horaria
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Administrador" as Admin
+
+rectangle "Sistema de Gestión Académica" {
+    usecase "Gestionar Carga\nHoraria al Docente" as CU_GestionCarga
+    usecase "Iniciar Sesión" as CU01
+}
+
+Admin -- CU_GestionCarga
+
+CU_GestionCarga ..> CU01 : <<include>>
+
+note right of CU_GestionCarga
+  Permite asignar horarios y aulas
+  a los docentes para sus materias
+end note
+
+@enduml

@@ -1,0 +1,40 @@
+@startuml P3-arquitectura-logistica-academica
+title P3. Subsistema de Gestión de Logística Académica
+
+package "CAPA ESPECÍFICA" {
+    component "<<Form>>\nbuilding-manager.blade.php" as Form1
+    component "<<Form>>\nclassroom-manager.blade.php" as Form2
+    component "<<Form>>\nschedule-manager.blade.php" as Form3
+    component "<<Form>>\nmanual-assignment.blade.php" as Form4
+    component "<<Form>>\nspecial-reservation.blade.php" as Form5
+}
+
+package "CAPA GENERAL" {
+    component "<<Class>>\nBuildingManager.php" as Class1
+    component "<<Class>>\nClassroomManager.php" as Class2
+    component "<<Class>>\nScheduleManager.php" as Class3
+    component "<<Class>>\nManualSchedule\nAssignment.php" as Class4
+    component "<<Class>>\nSpecialReservation\nManager.php" as Class5
+}
+
+package "CAPA INTERMEDIA" {
+    component "<<Table>>\nBuildings.sql" as Table1
+    component "<<Table>>\nClassrooms.sql" as Table2
+    component "<<Table>>\nSchedules.sql" as Table3
+    component "<<Table>>\nAssignments.sql" as Table4
+    component "<<Table>>\nSpecialReservations.sql" as Table5
+}
+
+Form1 -(0- Class1 : CU07
+Form2 -(0- Class2 : CU08
+Form3 -(0- Class3 : CU09
+Form4 -(0- Class4 : CU10
+Form5 -(0- Class5 : CU15
+
+Class1 ..down..> Table1 : CU07
+Class2 ..down..> Table2 : CU08
+Class3 ..down..> Table3 : CU09
+Class4 ..down..> Table4 : CU10
+Class5 ..down..> Table5 : CU15
+
+@enduml

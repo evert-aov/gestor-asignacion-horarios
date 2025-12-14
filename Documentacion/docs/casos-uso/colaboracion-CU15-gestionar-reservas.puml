@@ -1,0 +1,72 @@
+@startuml colaboracion-CU15-gestionar-reservas
+left to right direction
+
+' Configuración
+skinparam backgroundColor white
+skinparam shadowing false
+
+' Actores y Objetos
+object "Docente" as User
+object "Administrador" as Admin
+object ":UI\nSpecialReservation\nManager" as UI
+object ":Controller\nSpecialReservation\nManager" as Controller  
+object ":SpecialReservation" as Reservation
+object ":Classroom" as Classroom
+object ":User" as UserModel
+
+' Mensajes numerados - LISTAR
+User --> UI : **1.** Acceder al módulo
+UI --> Controller : **1.1.** render()
+Controller --> Reservation : **1.1.1.** with(['classroom',\n'user', 'approvedBy'])
+Controller --> Classroom : **1.1.2.** all()
+
+' Mensajes numerados - BUSCAR/FILTRAR
+User --> UI : **2.** Buscar/Filtrar
+UI --> Controller : **2.1.** updatingSearch()
+Controller --> Reservation : **2.1.1.** where(title LIKE...)\nwhere(status=...)
+
+' Mensajes numerados - CREAR RESERVA
+User --> UI : **3.** Crear reserva
+UI --> Controller : **3.1.** openModal()
+
+User --> UI : **3.2.** Completar\nformulario
+User --> UI : **3.3.** Guardar
+
+UI --> Controller : **3.3.1.** store()
+Controller --> Controller : **3.3.2.**\nvalidate()
+Controller --> Reservation : **3.3.3.** create()\n[status='pendiente']
+
+' Mensajes numerados - APROBAR (Admin)
+Admin --> UI : **4.** Seleccionar\nreserva
+Admin --> UI : **4.1.** Aprobar
+
+UI --> Controller : **4.1.1.** approve(id)
+Controller --> Reservation : **4.1.2.** findOrFail(id)
+Controller --> Reservation : **4.1.3.** update()\n[status='aprobada']
+
+' Mensajes numerados - RECHAZAR (Admin)
+Admin --> UI : **5.** Rechazar
+
+UI --> Controller : **5.1.** reject(id)
+Controller --> Reservation : **5.1.1.** findOrFail(id)
+Controller --> Reservation : **5.1.2.** update()\n[status='rechazada']
+
+' Mensajes numerados - ELIMINAR
+User --> UI : **6.** Eliminar reserva
+UI --> Controller : **6.1.** delete(id)
+Controller --> Reservation : **6.1.1.** findOrFail(id)\ndelete()
+
+note right of Controller
+  Estados de reserva:
+  - pendiente (inicial)
+  - aprobada (por Admin)
+  - rechazada (por Admin)
+end note
+
+note left of Admin
+  Solo el Administrador
+  puede aprobar/rechazar
+  reservas
+end note
+
+@enduml

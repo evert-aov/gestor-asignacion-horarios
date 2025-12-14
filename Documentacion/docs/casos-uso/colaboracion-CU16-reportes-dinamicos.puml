@@ -1,0 +1,73 @@
+@startuml colaboracion-CU16-reportes-dinamicos
+left to right direction
+
+' Configuración
+skinparam backgroundColor white
+skinparam shadowing false
+
+' Actores y Objetos
+object Usuario
+object ":UI\nDynamicReport" as UI
+object ":Controller\nDynamicReport\nController" as Controller  
+object ":ReportTemplate" as Template
+object ":Tables\n(Schema/DB)" as Tables
+
+' Mensajes numerados - ACCEDER
+Usuario --> UI : **1.** Acceder al módulo
+UI --> Controller : **1.1.** index()
+
+' Mensajes numerados - SELECCIONAR TABLA
+Usuario --> UI : **2.** Seleccionar tabla
+UI --> Controller : **2.1.** getTableFields()
+Controller --> Tables : **2.1.1.** Schema::\ngetColumnListing()
+
+' Mensajes numerados - GENERAR REPORTE
+Usuario --> UI : **3.** Seleccionar campos\ny filtros
+Usuario --> UI : **3.1.** Generar
+
+UI --> Controller : **3.1.1.** generate()
+Controller --> Controller : **3.1.2.**\nvalidate()
+Controller --> Controller : **3.1.3.**\nprepareReportQuery()
+Controller --> Tables : **3.1.4.** DB::table()\n->select()->where()\n->get()
+
+' Mensajes numerados - EXPORTAR
+Usuario --> UI : **4.** Exportar\n(PDF/Excel/HTML)
+
+UI --> Controller : **4.1.** downloadPdf()\no downloadExcel()\no downloadHtml()
+Controller --> Controller : **4.1.1.**\nprepareReportQuery()
+Controller --> Tables : **4.1.2.** Ejecutar\nconsulta
+Controller --> Controller : **4.1.3.** Generar\narchivo
+
+' Mensajes numerados - GUARDAR PLANTILLA
+Usuario --> UI : **5.** Guardar\nplantilla
+UI --> Controller : **5.1.** saveTemplate()
+Controller --> Controller : **5.1.1.**\nvalidate()
+Controller --> Template : **5.1.2.** create()
+
+' Mensajes numerados - CARGAR PLANTILLA
+Usuario --> UI : **6.** Cargar\nplantilla
+UI --> Controller : **6.1.** loadTemplate(id)
+Controller --> Template : **6.1.1.** find(id)
+
+' Mensajes numerados - EDITAR/ELIMINAR PLANTILLA
+Usuario --> UI : **7.** Editar/Eliminar\nplantilla
+UI --> Controller : **7.1.** updateTemplate()\no deleteTemplate()
+Controller --> Template : **7.1.1.** update()\no delete()
+
+note right of Controller
+  Funciones principales:
+  - Construir consultas dinámicas
+  - Aplicar filtros
+  - Resolver relaciones
+  - Generar exportaciones
+end note
+
+note left of Template
+  Plantillas guardan:
+  - Tabla seleccionada
+  - Campos incluidos
+  - Filtros aplicados
+  - Visibilidad (pública/privada)
+end note
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml P4-arquitectura-informacion-reportes
+title P4. Subsistema de Gestión de Información y Reportes
+
+package "CAPA ESPECÍFICA" {
+    component "<<Form>>\nreport-generator.blade.php" as Form1
+    component "<<Form>>\nreport-export.blade.php" as Form2
+    component "<<Form>>\nscheduled-reports.blade.php" as Form3
+    component "<<Form>>\nreport-templates.blade.php" as Form4
+    component "<<Form>>\nadmin-dashboard.blade.php" as Form5
+    component "<<Form>>\nnotifications.blade.php" as Form6
+}
+
+package "CAPA GENERAL" {
+    component "<<Class>>\nReportController.php" as Class1
+    component "<<Class>>\nReportExport\nController.php" as Class2
+    component "<<Class>>\nScheduledReport\nController.php" as Class3
+    component "<<Class>>\nDynamicReport\nController.php" as Class4
+    component "<<Class>>\nDashboard\nController.php" as Class5
+    component "<<Class>>\nNotification\nController.php" as Class6
+}
+
+package "CAPA INTERMEDIA" {
+    component "<<Table>>\nReports.sql" as Table1
+    component "<<Table>>\nReportExports.sql" as Table2
+    component "<<Table>>\nScheduledReports.sql" as Table3
+    component "<<Table>>\nReportTemplates.sql" as Table4
+    component "<<Table>>\nAuditLogs.sql" as Table5
+    component "<<Table>>\nNotifications.sql" as Table6
+}
+
+Form1 -(0- Class1 : CU13
+Form2 -(0- Class2 : CU14
+Form3 -(0- Class3 : CU15
+Form4 -(0- Class4 : CU16
+Form5 -(0- Class5 : CU17
+Form6 -(0- Class6 : CU18
+
+Class1 ..down..> Table1 : CU13
+Class2 ..down..> Table2 : CU14
+Class3 ..down..> Table3 : CU15
+Class4 ..down..> Table4 : CU16
+Class5 ..down..> Table5 : CU17
+Class6 ..down..> Table6 : CU18
+
+@enduml
