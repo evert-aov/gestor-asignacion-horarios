@@ -34,19 +34,12 @@
                     <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">({{ $unreadCount }} nuevas)</span>
                 @endif
             </h3>
-            @if($unreadCount > 0)
-                <button wire:click="markAllAsRead"
-                        class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
-                    Marcar todas como leídas
-                </button>
-            @endif
         </div>
 
         <!-- Lista de notificaciones -->
         <div class="max-h-96 overflow-y-auto">
             @forelse($notifications as $notification)
-                <div wire:click="goToNotification({{ $notification->id }})"
-                     class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700 {{ $notification->read_at ? 'opacity-75' : 'bg-blue-50 dark:bg-blue-900/10' }}">
+                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 {{ $notification->read_at ? 'opacity-75' : 'bg-blue-50 dark:bg-blue-900/10' }}">
 
                     <div class="flex items-start gap-3">
                         <!-- Ícono según prioridad -->
