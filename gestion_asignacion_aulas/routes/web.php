@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Reports\DynamicReportController as DynamicReportController;
 use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\SecurityAccess\UserImportController;
+use App\Http\Controllers\AbsenceRequestController;
 use App\Livewire\AcademicLogistics\Attendance\AttendanceQrManager;
 use App\Livewire\AcademicLogistics\ClassroomManager;
 use App\Livewire\AcademicLogistics\InfrastructureManager;
@@ -17,7 +18,7 @@ use App\Livewire\AcademicProcesses\GroupManager;
 use App\Livewire\AcademicProcesses\SubjectManager;
 use App\Livewire\AcademicProcesses\TeacherScheduleView;
 use App\Livewire\AcademicProcesses\TeacherSubjectManager;
-use App\Livewire\Notifications\CreateNotification;
+//use App\Livewire\Notifications\CreateNotification;
 use App\Livewire\Notifications\NotificationCenter;
 use App\Livewire\SecurityAccess\AuditLogManager;
 use App\Livewire\SecurityAccess\RoleManager;
@@ -117,9 +118,20 @@ Route::middleware('auth')->group(function () {
 
     // Notificaciones
     Route::get('/notificaciones', NotificationCenter::class)->name('notifications.index');
+
+    // Gestión de Solicitudes de Ausencia
+    Route::get('/ausencias', [AbsenceRequestController::class, 'index'])->name('absence-requests.index');
+    Route::get('/ausencias/crear', [AbsenceRequestController::class, 'create'])->name('absence-requests.create');
+    Route::post('/ausencias', [AbsenceRequestController::class, 'store'])->name('absence-requests.store');
+    Route::get('/ausencias/{id}', [AbsenceRequestController::class, 'show'])->name('absence-requests.show');
+    Route::patch('/ausencias/{id}/estado', [AbsenceRequestController::class, 'updateStatus'])->name('absence-requests.update-status');
+    Route::delete('/ausencias/{id}', [AbsenceRequestController::class, 'destroy'])->name('absence-requests.destroy');
 });
 
 // Ruta pública para escanear QR (requiere autenticación pero se maneja en el controlador)
 Route::get('/asistencia/marcar/{assignment}', [AttendanceScanController::class, 'scan'])->name('attendance.scan');
 
+
 require __DIR__.'/auth.php';
+
+
