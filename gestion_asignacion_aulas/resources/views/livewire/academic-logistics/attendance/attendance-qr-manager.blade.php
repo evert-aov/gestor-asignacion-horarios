@@ -81,7 +81,7 @@
                                             Aula
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            Acción
+                                            Acciones
                                         </th>
                                     </tr>
                                 </thead>
@@ -140,21 +140,35 @@
                                                 Aula {{ $assignment->classroom->number }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                                <button wire:click="generateQr({{ $assignment->id }})"
-                                                        wire:loading.attr="disabled"
-                                                        wire:target="generateQr({{ $assignment->id }})"
-                                                        type="button"
-                                                        class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 disabled:opacity-50">
-                                                    <svg wire:loading.remove wire:target="generateQr({{ $assignment->id }})" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                                    </svg>
-                                                    <svg wire:loading wire:target="generateQr({{ $assignment->id }})" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                    </svg>
-                                                    <span wire:loading.remove wire:target="generateQr({{ $assignment->id }})">Generar QR</span>
-                                                    <span wire:loading wire:target="generateQr({{ $assignment->id }})">Generando...</span>
-                                                </button>
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <!-- Botón Generar QR -->
+                                                    <button wire:click="generateQr({{ $assignment->id }})"
+                                                            wire:loading.attr="disabled"
+                                                            wire:target="generateQr({{ $assignment->id }})"
+                                                            type="button"
+                                                            title="Generar código QR para asistencia"
+                                                            class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 disabled:opacity-50">
+                                                        <svg wire:loading.remove wire:target="generateQr({{ $assignment->id }})" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                                        </svg>
+                                                         Qr
+                                                        <svg wire:loading wire:target="generateQr({{ $assignment->id }})" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </button>
+
+                                                    <!-- Botón Solicitar Licencia -->
+                                                    <button onclick="openAbsenceFormForClass('{{ $classDate->format('Y-m-d') }}', {{ $assignment->id }})"
+                                                            type="button"
+                                                            title="Solicitar licencia para esta clase"
+                                                            class="inline-flex items-center px-3 py-2 bg-orange-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-700 focus:bg-orange-700 active:bg-orange-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                                        </svg>
+                                                         Licencia
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -386,4 +400,104 @@
             {{ session('error') }}
         </div>
     @endif
+
+    <!-- Modal para solicitar licencia -->
+    <div id="absenceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-gray-800">
+            <div id="absenceModalContent">
+                <!-- Contenido cargado dinámicamente -->
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    function openAbsenceFormForClass(classDate, assignmentId) {
+        const modal = document.getElementById('absenceModal');
+        const modalContent = document.getElementById('absenceModalContent');
+
+        modalContent.innerHTML = '<div class="text-center text-gray-300">Cargando...</div>';
+        modal.classList.remove('hidden');
+
+        fetch(`{{ route("absence-requests.create") }}?assignment_id=${assignmentId}&class_date=${classDate}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            modalContent.innerHTML = html;
+
+            // Configurar el evento de envío del formulario
+            initAbsenceRequestForm();
+        })
+        .catch(error => {
+            modalContent.innerHTML = '<div class="text-center text-red-400">Error al cargar el formulario</div>';
+            console.error('Error al cargar formulario:', error);
+        });
+    }
+
+    function initAbsenceRequestForm() {
+        const form = document.getElementById('absenceRequestForm');
+        if (!form) {
+            console.error('Formulario no encontrado');
+            return;
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('{{ route("absence-requests.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeAbsenceModal();
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al crear la solicitud');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Error en el fetch:', error);
+                alert('Error al enviar la solicitud');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    }
+
+    function closeAbsenceModal() {
+        document.getElementById('absenceModal').classList.add('hidden');
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('absenceModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAbsenceModal();
+        }
+    });
+
+    // Cerrar modal con Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAbsenceModal();
+        }
+    });
+</script>
