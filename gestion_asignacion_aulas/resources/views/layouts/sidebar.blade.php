@@ -189,6 +189,15 @@
                                 Carreras Universitarias
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('absence-requests.index') }}"
+                                class="flex items-center p-2 text-sm text-gray-600 rounded-lg dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                Solicitudes de Licencias
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
@@ -297,7 +306,7 @@
             @endif
 
             {{-- Mi Horario - solo para Docentes --}}
-            @if (Auth::user()->hasRole('Docente'))
+            @if (Auth::user()->hasRole('Docente') && !Auth::user()->hasRole('Administrador'))
                 <a href="{{ route('my-schedule.index') }}"
                     class="flex items-center p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 group transition {{ request()->routeIs('my-schedule.index') ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : '' }}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -306,6 +315,15 @@
                             clip-rule="evenodd" />
                     </svg>
                     <span class="ms-3 font-semibold">Mi Horario</span>
+                </a>
+                <a href="{{ route('absence-requests.index') }}"
+                    class="flex items-center p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 group transition {{ request()->routeIs('my-schedule.index') ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : '' }}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span class="ms-3 font-semibold">Solicitudes de Licencias</span>
                 </a>
             @endif
 
